@@ -6,19 +6,17 @@ from som4proteins.som.parameters.enums import NEIGHBORHOOD, SampleOrderType,\
 import numpy as np
 from scipy.sparse import csc_matrix
 
-# TODO class SequentialTrain(SOMTrain)
+# TODO: class SequentialTrain(SOMTrain)
 
 class TrainAlgorithm():
     """Batch som algorithm.
     
-    Parameters
-    ----------
-    som_map : :class:`.Map`
-        Map of the SOM
-    data : numpy matrix
-        Training data
-    parameters : :class:`.Parameters`
-        Training parameters
+    :param som_map: Map of the SOM
+    :type som_map: :class:`.Map`
+    :param data: Training data
+    :type data: numpy matrix
+    :param parameters: Training parameters
+    :type parameters: :class:`.Parameters`
     """
     
     def __init__(self, som_map, data, parameters):
@@ -69,7 +67,7 @@ class TrainAlgorithm():
                 else:
                     raise("Error: Order type unkown, the order type must be ordered or random.")
                 # neighborhood radius
-                # TODO move _calc_radius from TrainingParameters to here
+                # TODO: move _calc_radius from TrainingParameters to here
                 r = self.radius[steps]
                 r = r ** 2  # squared radius (see notes about Ud above)
                 r[r==0] = np.finfo(np.float64).eps # zero radius might cause div-by-zero error

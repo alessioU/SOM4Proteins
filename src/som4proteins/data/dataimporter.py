@@ -1,6 +1,6 @@
-"""dataimporter module
+'''dataimporter module
 
-"""
+'''
 import os
 import re
 import subprocess
@@ -11,35 +11,22 @@ import shutil
 
 
 class ProteinDataImporter():
-    """Import the protein data from files.
+    '''Import the protein data from files.
     
-        Parameters
-        ----------
-        trajectory_file : string
-            Path of the .xtc file.
-        structure_file : string
-            Path of the .pdb file.
-        protein_name : string
-            Name of the protein.
-        output_dir : string
-            Path of the output directory.
+        :param string trajectory_file: Path of the .xtc file.
+        :param string structure_file: Path of the .pdb file.
+        :param string protein_name: Name of the protein.
+        :param string output_dir: Path of the output directory.
             
-        Attributes
-        ----------
-        trajectory_file : string
-            Path of the trajectory (xtc) file.
-        structure_file : string
-            Path of the structure (pdb) file.
-        protein_name : string
-            Name of the protein.
-        output_dit : string
-            Path of the output dir.
-        num_frames : int
-            Number of frames.
-        num_atoms : int
-            Number of atoms for every frame.
+        
+        :ivar string trajectory_file: Path of the trajectory (xtc) file.
+        :ivar string structure_file: Path of the structure (pdb) file.
+        :ivar string protein_name: Name of the protein.
+        :ivar string output_dit: Path of the output dir.
+        :ivar int num_frames: Number of frames.
+        :ivar int num_atoms: Number of atoms for every frame.
             
-    """
+    '''
     
     def __init__(self, trajectory_file, structure_file, protein_name, output_dir):
         self.trajectory_file = os.path.abspath(trajectory_file)
@@ -50,7 +37,7 @@ class ProteinDataImporter():
         self._read_num_frames_atoms()
     
     def _extract_coordinates(self):
-        """Extract the coordinates (pdb files) in the output directory."""
+        '''Extract the coordinates (pdb files) in the output directory.'''
         old_wd = os.getcwd()
         os.chdir(self.output_dir)
         t = Template("echo 3 3 | ${command} -f ${trajectory_file} -s ${structure_file} -sep -o ${protein_name}.pdb -fit progressive > /dev/null 2>&1")
@@ -68,14 +55,14 @@ class ProteinDataImporter():
         os.chdir(old_wd)
         
     def get_coord_matrix(self):
-        """Return a DataFrame with the coordinates matrix.
+        '''Return a :class:`.DataFrame` with the coordinates matrix.
         
-        Returns
-        -------
-        coordMatrix : DataFrame
+        :returns:
             Matrix of the coordinates. Every row is a frame
             and every column is either a x,y or z coordinate of
-            some C-alpha atom."""
+            some C-alpha atom.
+        :rtype: :class:`.DataFrame` 
+        '''
         self._extract_coordinates()
         row_labels = [self.protein_name + str(num) for num in range(self.num_frames)]
         col_labels = self._read_col_labels()
@@ -83,7 +70,7 @@ class ProteinDataImporter():
         return DataFrame(data, row_labels, col_labels)
 
     def _read_data(self):
-        """Return a matrix of float."""
+        '''Return a matrix of float.'''
         float_re = "[-+]?\d*\.?\d*"
         reATOM = re.compile("ATOM\s+\d+\s+\w+\s+\w+\s+\d+\s+("+ 
                             float_re + ")\s+(" + float_re + ")\s+(" + float_re + ").*")
@@ -101,7 +88,7 @@ class ProteinDataImporter():
         return data
 
     def _read_col_labels(self):
-        """Return a list of string with the column labels."""
+        '''Return a list of string with the column labels.'''
         reATOM = re.compile("ATOM\s+\d+\s+(\w+)\s+\w+\s+(\d+).*")
         firstpdb_path = os.path.join(self.output_dir, self.protein_name + "0.pdb")
         col_labels = []
@@ -116,7 +103,7 @@ class ProteinDataImporter():
         return col_labels
                      
     def _check_files_exist(self):
-        """Check that the xtc and pdb files exists."""
+        '''Check that the xtc and pdb files exists.'''
         for f in [self.structure_file, self.trajectory_file]:
             try:
                 with open(f): pass
@@ -124,7 +111,7 @@ class ProteinDataImporter():
                 raise IOError(' '.join(['The file', f, 'doesn\'t exist.']))
             
     def _read_num_frames_atoms(self):
-        """Read the number of frames and atoms."""
+        '''Read the number of frames and atoms.'''
         if shutil.which('g_gmxcheck') is not None:
             p = subprocess.Popen(["g_gmxcheck", '-f', self.trajectory_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         elif shutil.which('gmxcheck') is not None:

@@ -1,5 +1,5 @@
-"""Parameters for the som algorithm module.
-"""
+'''Parameters for the som algorithm module.
+'''
 
 import numpy as np
 from som4proteins.som.parameters.enums import NEIGHBORHOOD
@@ -7,7 +7,7 @@ from som4proteins.som.parameters.enums import PHASE, ALPHATYPE
 
 
 class TrainingParameters:
-    """Represent the parameters for the som training algorithm."""
+    '''Represent the parameters for the som training algorithm.'''
     
     def __init__(self, neigh=None, alpha_type=None, alpha_ini=None,
                  radius_ini=None, radius_fin=None, trainlen=None, msize=None,
@@ -26,20 +26,18 @@ class TrainingParameters:
         self.sample_order_type = sample_order_type
         
     def defaultParameters(self, phase, msize=[10, 10], dataset_len=None):
-        """Used to give sensible values for SOM training parameters.
+        '''Used to give sensible values for SOM training parameters.
         
         These parameters depend on the number of training samples, 
         phase of training and map size. 
         
-        Parameters
-        ----------
-        phase : :class: `.PHASE`
-            Training phase
-        msize : vector
-            Map size
-        dataset_len : int, optional
-            Length of the training data"""
-        #TODO check that values are consistent with the phase chosen
+
+        :param phase: Training phase 
+        :type phase: :class:`.PHASE`
+        :param array_of_int msize: Map size
+        :param int(optional) dataset_len: Length of the training data
+        '''
+        #TODO: check that values are consistent with the phase chosen
         
         # default neighborhood function
         self.neigh = NEIGHBORHOOD.Gaussian

@@ -1,44 +1,31 @@
-"""map module
+'''map module
 
-"""
+'''
 import numpy as np
 
 from som4proteins.som.maps.enums import Lattice, Shape
 
 class Map:
-    """SOM Map
+    '''SOM Map
     
-    Parameters
-    ----------
-    map_size : list of int
-        Map grid size.
-    weight_vector_dim : int
-        Input space dimension(i.e. dimension of a weight vector).
-    lattice : :class:`.Lattice`
-        Map lattice.
-    shape : :class:`.Shape`
-        Map shape.
+    :param list_of_int map_size: Map grid size.
+    :param int weight_vector_dim: Input space dimension(i.e. dimension of a weight vector).
+    :param lattice: Map lattice.
+    :type lattice: :class:`.Lattice`
+    :param shape: Map shape.
+    :type shape: :class:`.Shape`
     
-    Attributes
-    ---------- 
-    size : list of int
-        Map grid size.
-    weight_vector_dim : int
-        Input space dimension(i.e. dimension of a weight vector).
-    lattice : :class:`.Lattice`
-        Map lattice.
-    shape : :class:`.Shape`
-        Map shape.
-    m_units : int
-        Number of neurons in the map(i.e. np.prod(size)).
-    neurons_weights : list of list
-        An m_units x weight_vector_dim matrix where every row represent a neuron.
-    sheet_coordinates : list of list
-        An m_units x len(size) matrix where every row is the coordinate of a map unit.
-    distances : list of list
+    :ivar list_of_int size: Map grid size.
+    :ivar int weight_vector_dim: Input space dimension(i.e. dimension of a weight vector).
+    :ivar lattice: :class:`.Lattice`, map lattice.
+    :ivar shape: :class:`.Shape`, map shape.
+    :ivar int m_units: Number of neurons in the map(i.e. np.prod(size)).
+    :ivar matrix neurons_weights: An m_units x weight_vector_dim matrix where every row represent a neuron.
+    :ivar matrix sheet_coordinates: An m_units x len(size) matrix where every row is the coordinate of a map unit.
+    :ivar matrix distances:
         An m_unit x m_units matrix where every row represent the distances of a map unit
         from all the others.
-    """
+    '''
     def __init__(self, map_size, weight_vector_dim,
                  lattice=Lattice.Rect, shape=Shape.Sheet):
         self.size = map_size
@@ -49,11 +36,11 @@ class Map:
         self._distances = self._calculate_distances()
 
     def randinit(self, data):
-        """Initializes a SOM with random values.
+        '''Initializes a SOM with random values.
         
         For each component (xi), the values are uniformly
         distributed in the range of [min(xi), max(xi)].
-        """
+        '''
         self._neurons_weights = np.random.rand(np.prod(self.size), self.weight_vector_dim)        
         for i in range(self.weight_vector_dim):
             ma = np.max(data[:, i])
@@ -61,12 +48,12 @@ class Map:
             self.neurons_weights[:, i] = (ma - mi) * self.neurons_weights[:, i] + mi
     
     def lininit(self, data):
-        """Initializes a SOM linearly along its greatest eigenvectors.
+        '''Initializes a SOM linearly along its greatest eigenvectors.
         
         Initializes a SOM linearly. The initialization is made by first calculating the eigenvalues
         and eigenvectors of the training data. Then, the map is initialized
         along the mdim greatest eigenvectors of the training data, where
-        mdim is the dimension of the map grid."""
+        mdim is the dimension of the map grid.'''
         dataset_len, data_dim = data.shape
         mdim = len(self.size)
         if dataset_len < 2:
@@ -115,7 +102,7 @@ class Map:
                 for d in range(mdim):
                     self.neurons_weights[n, :] = self._neurons_weights[n, :] + np.dot(Coords[n, d], eigvec[:, d].T)
         else:
-            # TODO test
+            # TODO: test this
             self._neurons_weights = np.reshape(np.arange(self.num_units), (self.num_units, 1)) \
                                         /(self.num_units - 1) * (np.max(data) - np.min(data)) + np.min(data)
 
@@ -135,13 +122,11 @@ class Map:
     
     
     def _calculate_distances(self):
-        """Calculate distances between the map units in the output space.
+        '''Calculate distances between the map units in the output space.
         
-        Returns
-        -------
-            distances : matrix
-                size = num_units x num_units
-        """
+        :returns: size = num_units x num_units
+        :rtype: matrix
+        '''
         num_units = self.num_units
         distances = np.zeros([num_units, num_units])
         
@@ -272,13 +257,11 @@ class Map:
         return coordinates        
     
     def som_hits(self, D):
-        """Calculate the response of the given data on the map.
+        '''Calculate the response of the given data on the map.
         
-        Returns
-        -------
-            hits : array of int
-                The number of hits in each map unit, length = munits
-        """
+        :returns: The number of hits in each map unit, length = munits
+        :rtype: array of int
+        '''
         hits = np.zeros(self.num_units)
         # calculate BMUs
         bmus, _ = self.calc_bmus(D)
@@ -288,17 +271,15 @@ class Map:
         return hits
         
     def calc_bmus(self, D):
-        """Finds Best-Matching Units (BMUs) for given data vector from a given map.
+        '''Finds Best-Matching Units (BMUs) for given data vector from a given map.
+           
+        :return: 1) The requested BMUs for each data vector.
+            
+            2) The corresponding quantization errors.
+        :rtype: 1) array of int, length = dataset_len.
         
-        Returns
-        -------
-        bmus : array of int
-            The requested BMUs for each data vector, 
-            length = dataset_len
-        qerrors : array of float
-            the corresponding quantization errors, 
-            length equal to that of bmus
-        """
+                2) array of float, length = dataset_len.
+        '''
         M = self.neurons_weights
         dataset_len, dataset_dim = D.shape
         bmus = np.zeros(dataset_len)

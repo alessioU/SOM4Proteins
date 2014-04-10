@@ -9,3 +9,13 @@ __pycache__
 *.csv
 
 *.png
+
+doc/_build/
+doc/_static/
+doc/_templates/
+
+*.swp
+
+.project
+.pydevproject
+.settings/

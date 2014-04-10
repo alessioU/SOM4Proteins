@@ -1,44 +1,42 @@
 class PHASE:
-    """Phase of the som training algorithm.
+    '''Phase of the som training algorithm.
     
-    Attributes
-    ----------
-    Train
+    :cvar Train:
         Map training in a onepass operation, as opposed to the
         rough-finetune combination.
-    Rough
+    :cvar Rough:
         Rough organization of the map: large neighborhood, big
         initial value for learning coefficient. Short training.
-    FineTune
+    :cvar FineTune:
         Finetuning the map after rough organization phase. Small
         neighborhood, learning coefficient is small already at 
-        the beginning. Long training."""
+        the beginning. Long training.'''
     
     Train, Rough, FineTune = range(3)
     
 class ALPHATYPE:
-    """The learning rate (alpha) goes from the alpha_ini to 0 along the function defined by ALPHATYPE
+    '''The learning rate (alpha) goes from the alpha_ini to 0 along the function defined by ALPHATYPE
     
     See Training Parameters http://www.cis.hut.fi/somtoolbox/documentation/somalg.shtml
     
-    Attributes
-    ----------
-    Linear
+    
+    :cvar Linear:
         Linear learning rate function
-    Inv
+    :cvar Inv:
         Inverse of time
-    Power
+    :cvar Power:
         Power series
-    """
+    '''
     
     Linear, Inv, Power = range(3)
     
 class NEIGHBORHOOD:
-    """Type of neighborhood.
+    '''Type of neighborhood.
         
         The four neighborhood functions: bubble, gaussian, cut gaussian and epanechicov
-        See http://www.cis.hut.fi/somtoolbox/documentation/somalg.shtml"""        
-    
+        
+        See http://www.cis.hut.fi/somtoolbox/documentation/somalg.shtml'''        
+    # TODO: complete documentation
     Bubble, Gaussian, CutGaussian, Epanechicov = range(4)
     
     @classmethod

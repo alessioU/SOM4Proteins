@@ -113,7 +113,7 @@ class Grid():
                         colorConverter.to_rgba('brown'),
                         colorConverter.to_rgba('cyan'),
                         colorConverter.to_rgba('magenta')]
-        # TODO if cl_class is bigger than cl_color_RGB then add random colors
+        # TODO: if cl_class is bigger than cl_color_RGB then add random colors
         for i,(x,y) in enumerate(self.coords):
             if self.lattice == Lattice.Hex:
                 hex = patches.RegularPolygon((x,-y), numVertices=6, radius=3,

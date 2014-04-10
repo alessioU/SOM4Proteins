@@ -1,31 +1,23 @@
-"""dataframe module
+'''dataframe module
 
-"""
+'''
 import numpy as np
 
-
 class DataFrame:
-    """Contains the data to be processed in a matrix form.
+    '''Contains the data to be processed in a matrix form.
     
-    Parameters
-    ----------
-    data : list of list
-        Matrix containing the data.
-    row_labels : list of string
-        Names of the columns.
-    col_labels : list of string
-        Names of the rows.
-        
-    Attributes
-    ----------
-    row_labels : list of string
-    col_labels : list of string
-    n_cols : int
-    n_rows : int
-    data : list of list
+    :param list_of_lists_of_numbers data: Matrix containing the data.
+    :param list_of_strings row_labels: Names of the columns.
+    :param list_of_strings col_labels: Names of the rows.
     
-    """
-      
+    :ivar array_of_strings row_labels: Names of the rows.
+    :ivar array_of_strings col_labels: Names of the columns.
+    :ivar int n_cols: Number of columns.
+    :ivar int n_rows: Number of rows.
+    :ivar 2D_array_of_numbers data: Data.
+    
+    '''
+    
     def __init__(self, data=[], row_labels=[], col_labels=[]):
         self._data = np.array(data)
         self._row_labels = np.array(row_labels)
