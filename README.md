@@ -4,7 +4,7 @@ SOM4Proteins
 ## Running tests
 
 ```
-$ export PROJECT_ABS_DIR=/home/alessio
+$ export PROJECT_ABS_DIR=/absolute/path/to/project/directory
 $ nosetest3 test/som4proteins
 ```
 
