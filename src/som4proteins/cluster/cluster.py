@@ -4,11 +4,15 @@ from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, fcluster
 
 class Cluster():
-    '''Creates clusters.
+    '''Creates clusters given a weight matrix.
         
-    :param matrix weight_mat: Each row is a unit, each column is a variable.
-    :param array_of_int hits: Assign each unit to a cluster.
+    :param matrix weight_mat: Each row is a neuron, each column is a variable.
+    :param array_of_int hits: The number of hits in each neuron.
     
+    :ivar int _num_clusters: Number of clusters created.
+    :ivar array_of_int _cl_class: It assigns each neuron to a cluster.
+    :ivar matrix_of_float _cl_centr: Centroids of the clusters, dimension = num clusters x unit dimension.
+    :ivar matrix weight_mat_no_empty_neurons: Weight matrix where empty neurons are removed.
     :cvar NO_CLUSTER: Constant assigned to an empty neuron that is not in any cluster. 
     '''
     
@@ -16,29 +20,22 @@ class Cluster():
     
     def __init__(self, weight_mat, hits=None):
         self._num_clusters = 0
+        self._cl_class = []
+        self._cl_centr = []
+        
         self.weight_mat = weight_mat
         self.hits = hits
         self.weight_mat_no_empty_neurons = self.weight_mat
         if hits != None:
             self.weight_mat_no_empty_neurons = self.weight_mat[hits > 0]
     
-    def num_clusters(self, cl_class):
-        return self._num_clusters if self._num_clusters > 0 \
-                                            else len(np.unique(cl_class))
-    
-    def _add_empty_neurons(self, cl_class):
+    def _add_empty_neurons(self):
+        '''Add to self._cl_class the empty neurons.'''
         if self.hits == None:
-            return cl_class
-        res = []
-        cl_index = 0
-        for hit in self.hits:
-            if hit > 0:
-                res.append(cl_class[cl_index])
-                cl_index += 1
-            else:
-                res.append(self.NO_CLUSTER)
-        return np.array(res)
-    
+            return self._cl_class
+        for i, hit in enumerate(self.hits):
+            if hit <= 0:
+                np.insert(self._cl_class, i, self.NO_CLUSTER)
     
     def cluster_moj(self, method='complete'):
         '''Creates clusters according to the Mojena rule.
@@ -56,12 +53,13 @@ class Cluster():
         '''
         linkage_matrix = linkage(pdist(self.weight_mat_no_empty_neurons),
                                     method=method)
-        max_num_clusters = self.calc_mojena_index(linkage_matrix)
-        cl_class = fcluster(linkage_matrix, t=max_num_clusters, criterion='maxclust')
-        self._num_clusters = len(cl_class)
-        return self._add_empty_neurons(cl_class)
+        max_num_clusters = self._calc_mojena_index(linkage_matrix)
+        self._cl_class = fcluster(linkage_matrix, t=max_num_clusters, criterion='maxclust')
+        self._num_clusters = len(self._cl_class)
+        self._add_empty_neurons()
+        return self._cl_class
     
-    def calc_mojena_index(self, linkage_matrix):
+    def _calc_mojena_index(self, linkage_matrix):
         '''Calculate the number of cluster according to the Mojena rule.
         
         TODO: add k parameter, now is fixed to 2.75.
@@ -87,44 +85,44 @@ class Cluster():
         threshold = m_index + 2.75 * std_index
         return np.sum(index > threshold) + 1
     
-    def calc_best(self, cl_class, cl_centr):
-        '''For each cluster, find the closest unit to its centroid.
+    def calc_best(self):
+        '''For each cluster, find the closest not empty neuron to its centroid.
         
-        :param array_of_int cl_class: Array that assigns for each unit a cluster.
-        :param matrix_of_float cl_centr: Centroids of the clusters, dimension = num clusters x unit dimension.
-            
-        :returns: Array that assigns for each cluster the closest unit to its centroid.
+        Before calling this function calc_centroids() has to be called.
+        
+        :returns: Array that assigns for each cluster the closest not empty neuron to its centroid.
         :rtype: array of int
-        ''' 
-        num_units = self.weight_mat.shape[0]
-        num_clusters = self.num_clusters(cl_class)
-        cl_best = np.zeros(num_clusters)
-        for c in range(num_clusters):
+        '''
+        cl_best = np.zeros(self._num_clusters)
+        for c, centroid in enumerate(self._cl_centr):
             best_dist = -1
-            for n_unit in range(num_units):
-                if cl_class[n_unit] == c + 1:
-                    dist_centr_unit = pdist(np.array([cl_centr[c],
-                                                      self.weight_mat[n_unit]]))
+            for n_unit, (neuron, cluster) in enumerate(zip(self.weight_mat, self._cl_class)):
+                if cluster == c + 1:
+                    dist_centr_unit = pdist(np.array([centroid,
+                                                      neuron]))
                     if best_dist < 0 or dist_centr_unit < best_dist:
                         best_dist = dist_centr_unit
                         cl_best[c] = n_unit
         return cl_best
     
-    def calc_centroids(self, cl_class):
+    def calc_centroids(self):
         '''For each cluster, find the centroid.
         
-        :param array_of_int cl_class: Array that assigns for each unit a cluster
-        
-        :returns: TODO: add return description
+        :returns: Centroids of the clusters, dimension = num clusters x unit dimension.
         :rtype: array of int
         '''
-        num_clusters = self.num_clusters(cl_class)
+        cl_class = self._cl_class
         dim = self.weight_mat.shape[1]
-        cl_centr = np.zeros((num_clusters, dim))    
-        for c in range(num_clusters):
+        cl_centr = np.zeros((self._num_clusters, dim))    
+        for c in range(self._num_clusters):
             if np.sum(cl_class == (c+1)) != 0:
                 cl_centr[c] = np.sum(self.weight_mat[cl_class == (c+1), :], axis=0)
                 cl_centr[c] = cl_centr[c] / np.sum(cl_class == (c+1))
             else:
                 cl_centr[c] = np.zeros(dim)
-        return cl_centr
+        self._cl_centr = cl_centr
+        return self._cl_centr
+    
+    def set_cl_class(self, cl_class):
+        self._cl_class = cl_class
+        self._num_clusters = len(np.unique([c for c in cl_class if c != self.NO_CLUSTER]))

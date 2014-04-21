@@ -23,16 +23,19 @@ class ClusterTest(unittest.TestCase):
     def test_best_units(self):
         weight_mat = self._load_file("test_integration_som_protein_codebook.csv")
         c = Cluster(weight_mat)
-        np.testing.assert_equal(c.calc_best(self.cl_class, c.calc_centroids(self.cl_class)), [37, 22, 98, 75])
+        c.set_cl_class(self.cl_class)
+        c.calc_centroids()
+        np.testing.assert_equal(c.calc_best(), [37, 22, 98, 75])
         
     def test_centroids(self):
         weight_mat = self._load_file("test_integration_som_protein_codebook.csv")
         actual_centr = self._load_file("test_mojena_centroids.csv")
         c = Cluster(weight_mat)
-        np.testing.assert_almost_equal(c.calc_centroids(self.cl_class), actual_centr, decimal=5)
+        c.set_cl_class(self.cl_class)
+        np.testing.assert_almost_equal(c.calc_centroids(), actual_centr, decimal=5)
         
     def test_calc_mojena_index(self):
         weight_mat = self._load_file("test_integration_som_protein_codebook.csv")
         c = Cluster(weight_mat)
         linkage_matrix = linkage(pdist(weight_mat), method='complete')
-        self.assertEqual(c.calc_mojena_index(linkage_matrix), 4)
+        self.assertEqual(c._calc_mojena_index(linkage_matrix), 4)

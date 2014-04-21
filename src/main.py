@@ -74,7 +74,8 @@ def main(msize, lattice, shape):
     hits = som_map.som_hits(dataFrame.data)
     c = Cluster(som_map.neurons_weights, hits)
     cl_class = c.cluster_moj(method=params.cluster_method)
-    cl_best = c.calc_best(cl_class, c.calc_centroids(cl_class))
+    c.calc_centroids()
+    cl_best = c.calc_best()
     g = Grid(msize, lattice)
     if params.draw_clusters:
         g.add_clusters(cl_class)
