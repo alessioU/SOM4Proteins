@@ -6,6 +6,7 @@ from matplotlib import patches, collections
 from matplotlib.colors import colorConverter
 
 from som4proteins.som.maps.enums import Lattice
+from som4proteins.cluster.cluster import Cluster
 
 class Grid():
     def __init__(self, msize, lattice):
@@ -91,9 +92,11 @@ class Grid():
             x, y = self.coords[bunit]
             if self.lattice == Lattice.Hex:
                 hex = patches.RegularPolygon((x,-y), numVertices=6,
-                                             radius=3, facecolor='none', linewidth=1, alpha=.8)
+                                             radius=3, facecolor='none',
+                                             linewidth=1, alpha=.8, edgecolor='red')
             else:
-                hex = patches.Rectangle((x, -y), 5.2, 5.2, facecolor='none', linewidth=1, alpha=.8)
+                hex = patches.Rectangle((x, -y), 5.2, 5.2, facecolor='none',
+                                        linewidth=1, alpha=.8, edgecolor='red')
             
             mypatches.append(hex)
   
@@ -108,20 +111,24 @@ class Grid():
                         colorConverter.to_rgba('blue'),
                         colorConverter.to_rgba('orange'),                
                         colorConverter.to_rgba('violet'),
-                        colorConverter.to_rgba('red'),
+                        colorConverter.to_rgba('gray'),
                         colorConverter.to_rgba('yellow'),
                         colorConverter.to_rgba('brown'),
                         colorConverter.to_rgba('cyan'),
                         colorConverter.to_rgba('magenta')]
         # TODO: if cl_class is bigger than cl_color_RGB then add random colors
         for i,(x,y) in enumerate(self.coords):
+            if cl_class[i] == Cluster.NO_CLUSTER:
+                continue
+            
             if self.lattice == Lattice.Hex:
                 hex = patches.RegularPolygon((x,-y), numVertices=6, radius=3,
                                              facecolor=cl_color_RGB[cl_class[i] - 1],
                                              edgecolor='none')
             else:
-                hex = patches.Rectangle((x, -y), 5.2, 5.2, facecolor=cl_color_RGB[cl_class[i] - 1],
-                                             edgecolor='none')
+                hex = patches.Rectangle((x, -y), 5.2, 5.2,
+                                        facecolor=cl_color_RGB[cl_class[i] - 1],
+                                        edgecolor='none')
             mypatches.append(hex)
          
         p = collections.PatchCollection(mypatches, match_original=True)

@@ -33,4 +33,4 @@ draw_clusters = True
 draw_hits = True
 draw_hits_numbers = True
 draw_best_unit_edges = True
-draw_all_edges = False
+draw_all_edges = True

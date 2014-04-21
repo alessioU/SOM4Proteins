@@ -35,4 +35,4 @@ class ClusterTest(unittest.TestCase):
         weight_mat = self._load_file("test_integration_som_protein_codebook.csv")
         c = Cluster(weight_mat)
         linkage_matrix = linkage(pdist(weight_mat), method='complete')
-        self.assertEqual(c._calc_mojena_index(linkage_matrix), 4)
+        self.assertEqual(c.calc_mojena_index(linkage_matrix), 4)

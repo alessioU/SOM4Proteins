@@ -16,9 +16,8 @@ import params
 
 def check_odir_empty():
     if glob.glob(os.path.join(params.output_directory, "*.pdb")) != []:
-        print("There are already some pdb files in the output directory,\n"+
-              "shall I delete them? [y/n]")
-        var = input("Enter something: ")
+        var = input("There are already some pdb files in the output directory,\n"+
+              "shall I delete them? [y/n]:")
         if var != 'y':
             print('Delete or move them and try again.')
             exit(0)
@@ -48,7 +47,8 @@ def output_msg(mystr, newline=True):
 
 def main(msize, lattice, shape):
     output_msg('Loading data ... ', False)
-    dataFrame = read_dataframe(params.trajectory_files, params.structure_files, params.protein_names)
+    dataFrame = read_dataframe(params.trajectory_files, 
+                               params.structure_files, params.protein_names)
     output_msg('Done.')
     dim = dataFrame.n_cols
     som_map = Map(map_size=msize, weight_vector_dim=dim, lattice=lattice, shape=shape)
@@ -62,15 +62,17 @@ def main(msize, lattice, shape):
     output_msg('Rough training (1st phase) ... ')
     bt.runBatch()
     output_msg('Done.')
-    trainingParameters = TrainingParameters(neigh=params.map_neighborhood, radius_ini=params.initial_radius,
-                                            radius_fin=params.final_radius, trainlen=params.training_length,
+    trainingParameters = TrainingParameters(neigh=params.map_neighborhood,
+                                            radius_ini=params.initial_radius,
+                                            radius_fin=params.final_radius,
+                                            trainlen=params.training_length,
                                             msize=msize)
     bt = TrainAlgorithm(som_map, dataFrame.data, trainingParameters)
     output_msg('Training (2nd phase) ... ')
     bt.runBatch()
     output_msg('Done.')
     hits = som_map.som_hits(dataFrame.data)
-    c = Cluster(som_map.neurons_weights)
+    c = Cluster(som_map.neurons_weights, hits)
     cl_class = c.cluster_moj(method=params.cluster_method)
     cl_best = c.calc_best(cl_class, c.calc_centroids(cl_class))
     g = Grid(msize, lattice)
@@ -85,8 +87,9 @@ def main(msize, lattice, shape):
     if params.draw_best_unit_edges:
         g.add_bestunits_edges(cl_class, cl_best)
     if params.save_png:
-        g.save(params.output_directory, 'som_' + str(msize[0]) + 'x' + str(msize[1]) + \
-               '_' + Lattice.to_str(lattice) + '_' + Shape.to_str(shape))
+        g.save(params.output_directory, 'som_' + str(msize[0]) + 'x' + \
+               str(msize[1]) + '_' + Lattice.to_str(lattice) + '_' + \
+               Shape.to_str(shape))
     else:
         g.show()
     
