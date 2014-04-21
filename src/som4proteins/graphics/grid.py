@@ -93,10 +93,10 @@ class Grid():
             if self.lattice == Lattice.Hex:
                 hex = patches.RegularPolygon((x,-y), numVertices=6,
                                              radius=3, facecolor='none',
-                                             linewidth=1, alpha=.8, edgecolor='red')
+                                             linewidth=1, edgecolor='red')
             else:
                 hex = patches.Rectangle((x, -y), 5.2, 5.2, facecolor='none',
-                                        linewidth=1, alpha=.8, edgecolor='red')
+                                        linewidth=1, edgecolor='red')
             
             mypatches.append(hex)
   

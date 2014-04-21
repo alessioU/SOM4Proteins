@@ -19,8 +19,7 @@ class Cluster():
     NO_CLUSTER = None
     
     def __init__(self, weight_mat, hits=None):
-        self._num_clusters = 0
-        self._cl_class = []
+        self.set_cl_class(np.array([]))
         self._cl_centr = []
         
         self.weight_mat = weight_mat
@@ -35,7 +34,7 @@ class Cluster():
             return self._cl_class
         for i, hit in enumerate(self.hits):
             if hit <= 0:
-                np.insert(self._cl_class, i, self.NO_CLUSTER)
+                self._cl_class = np.insert(self._cl_class, i, self.NO_CLUSTER)
     
     def cluster_moj(self, method='complete'):
         '''Creates clusters according to the Mojena rule.
@@ -54,8 +53,7 @@ class Cluster():
         linkage_matrix = linkage(pdist(self.weight_mat_no_empty_neurons),
                                     method=method)
         max_num_clusters = self._calc_mojena_index(linkage_matrix)
-        self._cl_class = fcluster(linkage_matrix, t=max_num_clusters, criterion='maxclust')
-        self._num_clusters = len(self._cl_class)
+        self.set_cl_class(fcluster(linkage_matrix, t=max_num_clusters, criterion='maxclust'))
         self._add_empty_neurons()
         return self._cl_class
     
@@ -124,5 +122,6 @@ class Cluster():
         return self._cl_centr
     
     def set_cl_class(self, cl_class):
-        self._cl_class = cl_class
-        self._num_clusters = len(np.unique([c for c in cl_class if c != self.NO_CLUSTER]))
+        # self._cl_class can contain None objects
+        self._cl_class = cl_class.astype('O')
+        self._num_clusters = len(np.unique([c for c in self._cl_class if c != self.NO_CLUSTER]))
