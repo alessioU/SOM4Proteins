@@ -1,14 +1,15 @@
-import os
-
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib import patches, collections
+from matplotlib.collections import PatchCollection
 from matplotlib.colors import colorConverter
+from matplotlib.patches import RegularPolygon, Rectangle
 
-from som4proteins.som.maps.enums import Lattice
+import matplotlib.pyplot as plt
+import numpy as np
 from som4proteins.cluster.cluster import Cluster
+from som4proteins.graphics.graph import Graph
+from som4proteins.som.maps.enums import Lattice
 
-class Grid():
+
+class Grid(Graph):
     def __init__(self, msize, lattice):
         _, self.ax = plt.subplots()
         self.msize = msize
@@ -42,7 +43,7 @@ class Grid():
                 if h != 0:
                     # max radius is 3, minimum is .4
                     radius = .4 + 2.6 * h/max_hits
-                hex = patches.RegularPolygon((x,-y), numVertices=6, radius=radius,
+                patch = RegularPolygon((x,-y), numVertices=6, radius=radius,
                                              linewidth=0., facecolor=colorConverter.to_rgba('black'))
             else:
                 sidelen = 0
@@ -50,10 +51,10 @@ class Grid():
                     sidelen = .7 + 4.5 * h/max_hits
                 x += (5.2 - sidelen) / 2
                 y -= (5.2 - sidelen) / 2
-                hex = patches.Rectangle((x, -y), sidelen, sidelen, linewidth=0., facecolor=colorConverter.to_rgba('black'))
-            mypatches.append(hex)
+                patch = Rectangle((x, -y), sidelen, sidelen, linewidth=0., facecolor=colorConverter.to_rgba('black'))
+            mypatches.append(patch)
             
-        p = collections.PatchCollection(mypatches, match_original=True)
+        p = PatchCollection(mypatches, match_original=True)
         self.ax.add_collection(p)
         self.ax.autoscale_view()
         plt.axes().set_aspect('equal', 'datalim')
@@ -75,13 +76,13 @@ class Grid():
         mypatches=[]
         for x,y in self.coords:
             if self.lattice == Lattice.Hex:
-                hex = patches.RegularPolygon((x,-y), numVertices=6,
+                patch = RegularPolygon((x,-y), numVertices=6,
                                              radius=3, facecolor='none', linewidth=0.5, alpha=0.3)
             else:
-                hex = patches.Rectangle((x, -y), 5.2, 5.2, facecolor='none', linewidth=0.5, alpha=0.3)
-            mypatches.append(hex)
+                patch = Rectangle((x, -y), 5.2, 5.2, facecolor='none', linewidth=0.5, alpha=0.3)
+            mypatches.append(patch)
   
-        p = collections.PatchCollection(mypatches, match_original=True)
+        p = PatchCollection(mypatches, match_original=True)
         self.ax.add_collection(p)
         self.ax.autoscale_view()
         plt.axes().set_aspect('equal', 'datalim')
@@ -91,54 +92,38 @@ class Grid():
         for bunit in cl_best:
             x, y = self.coords[bunit]
             if self.lattice == Lattice.Hex:
-                hex = patches.RegularPolygon((x,-y), numVertices=6,
+                patch = RegularPolygon((x,-y), numVertices=6,
                                              radius=3, facecolor='none',
                                              linewidth=1, edgecolor='red')
             else:
-                hex = patches.Rectangle((x, -y), 5.2, 5.2, facecolor='none',
+                patch = Rectangle((x, -y), 5.2, 5.2, facecolor='none',
                                         linewidth=1, edgecolor='red')
             
-            mypatches.append(hex)
+            mypatches.append(patch)
   
-        p = collections.PatchCollection(mypatches, match_original=True)
+        p = PatchCollection(mypatches, match_original=True)
         self.ax.add_collection(p)
         self.ax.autoscale_view()
         plt.axes().set_aspect('equal', 'datalim')
         
-    def add_clusters(self, cl_class):
+    def add_clusters(self, cl_class, cl_color):
         mypatches=[]
-        cl_color_RGB = [colorConverter.to_rgba('green'),
-                        colorConverter.to_rgba('blue'),
-                        colorConverter.to_rgba('orange'),                
-                        colorConverter.to_rgba('violet'),
-                        colorConverter.to_rgba('gray'),
-                        colorConverter.to_rgba('yellow'),
-                        colorConverter.to_rgba('brown'),
-                        colorConverter.to_rgba('cyan'),
-                        colorConverter.to_rgba('magenta')]
-        # TODO: if cl_class is bigger than cl_color_RGB then add random colors
         for i,(x,y) in enumerate(self.coords):
             if cl_class[i] == Cluster.NO_CLUSTER:
                 continue
             
             if self.lattice == Lattice.Hex:
-                hex = patches.RegularPolygon((x,-y), numVertices=6, radius=3,
-                                             facecolor=cl_color_RGB[cl_class[i] - 1],
+                patch = RegularPolygon((x,-y), numVertices=6, radius=3,
+                                             facecolor=cl_color[cl_class[i] - 1],
                                              edgecolor='none')
             else:
-                hex = patches.Rectangle((x, -y), 5.2, 5.2,
-                                        facecolor=cl_color_RGB[cl_class[i] - 1],
+                patch = Rectangle((x, -y), 5.2, 5.2,
+                                        facecolor=cl_color[cl_class[i] - 1],
                                         edgecolor='none')
-            mypatches.append(hex)
+            mypatches.append(patch)
          
-        p = collections.PatchCollection(mypatches, match_original=True)
+        p = PatchCollection(mypatches, match_original=True)
 
         self.ax.add_collection(p)
         self.ax.autoscale_view()
         plt.axes().set_aspect('equal', 'datalim')
-        
-    def show(self):
-        plt.show()
-        
-    def save(self, path, name):
-        plt.savefig(os.path.join(path, name+'.png'))

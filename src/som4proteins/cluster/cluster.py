@@ -54,6 +54,7 @@ class Cluster():
                                     method=method)
         max_num_clusters = self._calc_mojena_index(linkage_matrix)
         self.set_cl_class(fcluster(linkage_matrix, t=max_num_clusters, criterion='maxclust'))
+        self._linkage_matrix = linkage_matrix
         self._add_empty_neurons()
         return self._cl_class
     
@@ -80,8 +81,8 @@ class Cluster():
         index = linkage_matrix[:, 2]
         m_index = np.mean(index)
         std_index = np.std(index, ddof=1)
-        threshold = m_index + 2.75 * std_index
-        return np.sum(index > threshold) + 1
+        self._threshold = m_index + 2.75 * std_index
+        return np.sum(index > self._threshold) + 1
     
     def calc_best(self):
         '''For each cluster, find the closest not empty neuron to its centroid.
@@ -125,3 +126,9 @@ class Cluster():
         # self._cl_class can contain None objects
         self._cl_class = cl_class.astype('O')
         self._num_clusters = len(np.unique([c for c in self._cl_class if c != self.NO_CLUSTER]))
+        
+    def get_linkage_matrix(self):
+        return self._linkage_matrix
+    
+    def get_threshold(self):
+        return self._threshold

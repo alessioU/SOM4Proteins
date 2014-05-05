@@ -1,18 +1,18 @@
-import os
 import glob
+import os
 
-import numpy as np
-
+import params
+from som4proteins.cluster.cluster import Cluster
+from som4proteins.data.dataframe import DataFrame
+from som4proteins.data.dataimporter import ProteinDataImporter
+from som4proteins.graphics.dendro import Dendrogram
 from som4proteins.graphics.grid import Grid
 from som4proteins.som.maps.enums import Lattice, Shape
-from som4proteins.data.dataimporter import ProteinDataImporter
-from som4proteins.data.dataframe import DataFrame
 from som4proteins.som.maps.map import Map
-from som4proteins.som.parameters.parameters import TrainingParameters
 from som4proteins.som.parameters.enums import PHASE, NEIGHBORHOOD
+from som4proteins.som.parameters.parameters import TrainingParameters
 from som4proteins.som.trainalgorithm import TrainAlgorithm
-from som4proteins.cluster.cluster import Cluster
-import params
+
 
 def check_odir_empty():
     if glob.glob(os.path.join(params.output_directory, "*.pdb")) != []:
@@ -76,9 +76,29 @@ def main(msize, lattice, shape):
     cl_class = c.cluster_moj(method=params.cluster_method)
     c.calc_centroids()
     cl_best = c.calc_best()
+    # TODO: add color palette as parameter.
+    # In the dendrogram the blue color is for lines above threshold
+    palette = [ 'green',
+                'orange',                
+                'violet',
+                'gray',
+                'yellow',
+                'brown',
+                'cyan',
+                'magenta' ]
+    d = Dendrogram(c.get_linkage_matrix(), cl_class, c.get_threshold(),
+                palette)
+    if params.save_dend_png:
+        filename = 'som_' + str(msize[0]) + 'x' + \
+               str(msize[1]) + '_' + Lattice.to_str(lattice) + '_' + \
+               Shape.to_str(shape) + '_dend'
+        d.save(params.output_directory, filename)
+    else:
+        d.show()
+    d.close()
     g = Grid(msize, lattice)
     if params.draw_clusters:
-        g.add_clusters(cl_class)
+        g.add_clusters(cl_class, palette)
     if params.draw_hits:
         g.add_hits(hits)
     if params.draw_hits_numbers:
@@ -87,12 +107,14 @@ def main(msize, lattice, shape):
         g.add_edges()
     if params.draw_best_unit_edges:
         g.add_bestunits_edges(cl_class, cl_best)
-    if params.save_png:
-        g.save(params.output_directory, 'som_' + str(msize[0]) + 'x' + \
+    if params.save_grid_png:
+        filename = 'som_' + str(msize[0]) + 'x' + \
                str(msize[1]) + '_' + Lattice.to_str(lattice) + '_' + \
-               Shape.to_str(shape))
+               Shape.to_str(shape) + '_grid'
+        g.save(params.output_directory, filename)
     else:
         g.show()
+    g.close()
     
 def check_lattice():
     if params.map_lattice not in Lattice.all_str():

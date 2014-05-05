@@ -26,9 +26,10 @@ map_neighborhood = 'gaussian'
 
 cluster_method = 'complete'
 
-# if save_png == True the image is saved in the output dir
+# if save_*_png == True the image is saved in the output dir
 # otherwise the grid is just shown
-save_png = False
+save_grid_png = False
+save_dend_png = False
 draw_clusters = True
 draw_hits = True
 draw_hits_numbers = True
