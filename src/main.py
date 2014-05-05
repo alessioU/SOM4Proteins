@@ -71,6 +71,11 @@ def main(msize, lattice, shape):
     output_msg('Training (2nd phase) ... ')
     bt.runBatch()
     output_msg('Done.')
+    if (params.save_neurons_weight):
+        filename = 'SOM_' + str(msize[0]) + 'x' + str(msize[1]) + \
+                    '_' + params.jobname 
+        file = os.path.join(params.output_directory, filename)
+        som_map.save_neurons_weights(file)
     hits = som_map.som_hits(dataFrame.data)
     c = Cluster(som_map.neurons_weights, hits)
     cl_class = c.cluster_moj(method=params.cluster_method)
@@ -89,10 +94,10 @@ def main(msize, lattice, shape):
     d = Dendrogram(c.get_linkage_matrix(), cl_class, c.get_threshold(),
                 palette)
     if params.save_dend_png:
-        filename = 'som_' + str(msize[0]) + 'x' + \
-               str(msize[1]) + '_' + Lattice.to_str(lattice) + '_' + \
-               Shape.to_str(shape) + '_dend'
-        d.save(params.output_directory, filename)
+        filename = 'dend_' + str(msize[0]) + 'x' + str(msize[1]) + \
+                '_' + params.jobname + '.png'
+        file = os.path.join(params.output_directory, filename)
+        d.save(file)
     else:
         d.show()
     d.close()
@@ -108,10 +113,10 @@ def main(msize, lattice, shape):
     if params.draw_best_unit_edges:
         g.add_bestunits_edges(cl_class, cl_best)
     if params.save_grid_png:
-        filename = 'som_' + str(msize[0]) + 'x' + \
-               str(msize[1]) + '_' + Lattice.to_str(lattice) + '_' + \
-               Shape.to_str(shape) + '_grid'
-        g.save(params.output_directory, filename)
+        filename = 'SOM_' + str(msize[0]) + 'x' + str(msize[1]) + \
+                '_' + params.jobname + '.png'
+        file = os.path.join(params.output_directory, filename)
+        g.save(file)
     else:
         g.show()
     g.close()

@@ -6,6 +6,7 @@ structure_files = ['../test/testfiles/ahatv_CA_aligned.pdb',
 protein_names = ['ahatv',
                  'ahavf']
 
+jobname = 'test1'
 output_directory = './prova'
 
 # just batch for now, todo sequential
@@ -28,8 +29,11 @@ cluster_method = 'complete'
 
 # if save_*_png == True the image is saved in the output dir
 # otherwise the grid is just shown
-save_grid_png = False
-save_dend_png = False
+save_grid_png = True
+save_dend_png = True
+
+save_neurons_weight = True
+
 draw_clusters = True
 draw_hits = True
 draw_hits_numbers = True

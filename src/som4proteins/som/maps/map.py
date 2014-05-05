@@ -1,9 +1,11 @@
 '''map module
 
 '''
-import numpy as np
+import os
 
+import numpy as np
 from som4proteins.som.maps.enums import Lattice, Shape
+
 
 class Map:
     '''SOM Map
@@ -329,3 +331,6 @@ class Map:
                 bmus[inds] = B
             qerrors[inds] = Q.T + dconst[inds]
         return bmus, np.sqrt(np.abs(qerrors))
+    
+    def save_neurons_weights(self, file):
+        np.save(file, self._neurons_weights)
