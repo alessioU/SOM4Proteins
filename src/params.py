@@ -9,6 +9,9 @@ protein_names = ['ahatv',
 jobname = 'test1'
 output_directory = './prova'
 
+# Path to a .npy file or None
+neurons_weights = './prova/SOM_10x10_test1.npy'
+
 # just batch for now, todo sequential
 algorithm = 'batch'
 initial_radius = 3

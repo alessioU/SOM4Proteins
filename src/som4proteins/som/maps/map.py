@@ -334,3 +334,6 @@ class Map:
     
     def save_neurons_weights(self, file):
         np.save(file, self._neurons_weights)
+    
+    def load_neurons_weights(self, file):
+        self._neurons_weights = np.load(file)

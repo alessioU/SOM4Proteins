@@ -52,30 +52,33 @@ def main(msize, lattice, shape):
     output_msg('Done.')
     dim = dataFrame.n_cols
     som_map = Map(map_size=msize, weight_vector_dim=dim, lattice=lattice, shape=shape)
-    if params.map_initialization == 'linear':
-        som_map.lininit(dataFrame.data)
+    if params.neurons_weights is None:
+        if params.map_initialization == 'linear':
+            som_map.lininit(dataFrame.data)
+        else:
+            som_map.randinit()
+        trainingParameters = TrainingParameters()
+        trainingParameters.defaultParameters(PHASE.Rough, msize=msize)
+        bt = TrainAlgorithm(som_map, dataFrame.data, trainingParameters)
+        output_msg('Rough training (1st phase) ... ')
+        bt.runBatch()
+        output_msg('Done.')
+        trainingParameters = TrainingParameters(neigh=params.map_neighborhood,
+                                                radius_ini=params.initial_radius,
+                                                radius_fin=params.final_radius,
+                                                trainlen=params.training_length,
+                                                msize=msize)
+        bt = TrainAlgorithm(som_map, dataFrame.data, trainingParameters)
+        output_msg('Training (2nd phase) ... ')
+        bt.runBatch()
+        output_msg('Done.')
+        if (params.save_neurons_weight):
+            filename = 'SOM_' + str(msize[0]) + 'x' + str(msize[1]) + \
+                        '_' + params.jobname 
+            file = os.path.join(params.output_directory, filename)
+            som_map.save_neurons_weights(file)
     else:
-        som_map.randinit()
-    trainingParameters = TrainingParameters()
-    trainingParameters.defaultParameters(PHASE.Rough, msize=msize)
-    bt = TrainAlgorithm(som_map, dataFrame.data, trainingParameters)
-    output_msg('Rough training (1st phase) ... ')
-    bt.runBatch()
-    output_msg('Done.')
-    trainingParameters = TrainingParameters(neigh=params.map_neighborhood,
-                                            radius_ini=params.initial_radius,
-                                            radius_fin=params.final_radius,
-                                            trainlen=params.training_length,
-                                            msize=msize)
-    bt = TrainAlgorithm(som_map, dataFrame.data, trainingParameters)
-    output_msg('Training (2nd phase) ... ')
-    bt.runBatch()
-    output_msg('Done.')
-    if (params.save_neurons_weight):
-        filename = 'SOM_' + str(msize[0]) + 'x' + str(msize[1]) + \
-                    '_' + params.jobname 
-        file = os.path.join(params.output_directory, filename)
-        som_map.save_neurons_weights(file)
+        som_map.load_neurons_weights(params.neurons_weights)
     hits = som_map.som_hits(dataFrame.data)
     c = Cluster(som_map.neurons_weights, hits)
     cl_class = c.cluster_moj(method=params.cluster_method)
