@@ -95,7 +95,7 @@ def main(msize, lattice, shape):
                 'cyan',
                 'magenta' ]
     d = Dendrogram(c.get_linkage_matrix(), cl_class, c.get_threshold(),
-                palette)
+                c.num_clusters, palette)
     if params.save_dend_png:
         filename = 'dend_' + str(msize[0]) + 'x' + str(msize[1]) + \
                 '_' + params.jobname + '.png'
@@ -106,7 +106,7 @@ def main(msize, lattice, shape):
     d.close()
     g = Grid(msize, lattice)
     if params.draw_clusters:
-        g.add_clusters(cl_class, palette)
+        g.add_clusters(cl_class, c.num_clusters, palette)
     if params.draw_hits:
         g.add_hits(hits)
     if params.draw_hits_numbers:

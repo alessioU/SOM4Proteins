@@ -106,7 +106,7 @@ class Grid(Graph):
         self.ax.autoscale_view()
         plt.axes().set_aspect('equal', 'datalim')
         
-    def add_clusters(self, cl_class, cl_color):
+    def add_clusters(self, cl_class, num_clusters, cl_color):
         mypatches=[]
         for i,(x,y) in enumerate(self.coords):
             if cl_class[i] == Cluster.NO_CLUSTER:
@@ -127,3 +127,16 @@ class Grid(Graph):
         self.ax.add_collection(p)
         self.ax.autoscale_view()
         plt.axes().set_aspect('equal', 'datalim')
+        # Double the size of the canvas
+        current_figure = plt.gcf()
+        w, h = current_figure.get_size_inches()
+        current_figure.set_size_inches(w*2, h*2)
+        # Shrink current axis by 20% to make space for the legend
+        box = self.ax.get_position()
+        self.ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+        
+        handles = []
+        for i in range(num_clusters):
+            handles.append(plt.Line2D((0,1),(0,0), color=cl_color[i]))
+        plt.legend(handles, [ "cluster " + str(x) for x in range(1, num_clusters + 1)],
+                   loc='center left', bbox_to_anchor=(1, 0.5))

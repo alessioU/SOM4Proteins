@@ -9,7 +9,7 @@ class Cluster():
     :param matrix weight_mat: Each row is a neuron, each column is a variable.
     :param array_of_int hits: The number of hits in each neuron.
     
-    :ivar int _num_clusters: Number of clusters created.
+    :ivar int num_clusters: Number of clusters created.
     :ivar array_of_int _cl_class: It assigns each neuron to a cluster.
     :ivar matrix_of_float _cl_centr: Centroids of the clusters, dimension = num clusters x unit dimension.
     :ivar matrix weight_mat_no_empty_neurons: Weight matrix where empty neurons are removed.
@@ -132,3 +132,7 @@ class Cluster():
     
     def get_threshold(self):
         return self._threshold
+    
+    @property
+    def num_clusters(self):
+        return self._num_clusters
