@@ -79,11 +79,20 @@ def main(msize, lattice, shape):
             som_map.save_neurons_weights(file)
     else:
         som_map.load_neurons_weights(params.neurons_weights)
-    hits = som_map.som_hits(dataFrame.data)
+    hits, bmus = som_map.som_hits(dataFrame.data)
+    filename = os.path.join(params.output_directory,
+                            'neuron_data_' + params.jobname + '.txt')
+    som_map.save_neuron_data(dataFrame, bmus, filename)
     c = Cluster(som_map.neurons_weights, hits)
     cl_class = c.cluster_moj(method=params.cluster_method)
     c.calc_centroids()
     cl_best = c.calc_best()
+    filename = os.path.join(params.output_directory,
+                            'centroids_' + params.jobname + '.txt')
+    c.save_centroids_data(dataFrame, bmus, cl_best, filename)
+    filename = os.path.join(params.output_directory,
+                            'cluster_neurons_' + params.jobname + '.txt')
+    c.save_cluster_neuron_data(cl_best, filename)
     # TODO: add color palette as parameter.
     # In the dendrogram the blue color is for lines above threshold
     palette = [ 'green',

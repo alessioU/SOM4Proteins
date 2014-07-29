@@ -270,7 +270,7 @@ class Map:
         # for each unit, check how many hits it got
         for i in range(self.num_units):
             hits[i] = np.sum(bmus == i)
-        return hits
+        return hits, bmus
         
     def calc_bmus(self, D):
         '''Finds Best-Matching Units (BMUs) for given data vector from a given map.
@@ -337,3 +337,19 @@ class Map:
     
     def load_neurons_weights(self, file):
         self._neurons_weights = np.load(file)
+    
+    def save_neuron_data(self, dataframe, bmus, file):
+        ''' Save neurons' data file
+        
+        On every line there's the number of the neuron, followed by the
+        labels of the datas won by that neuron ordered by increasing distance
+        '''
+        with open(file, mode='w') as f:
+            # TODO: make it more efficient
+            for i in range(self.num_units):
+                idx = bmus == i
+                data = dataframe.data[idx]
+                unit = np.tile(self._neurons_weights[i], (len(data), 1))
+                dist = np.sqrt(np.sum(np.square(data - unit), axis=1))
+                labels = dataframe.row_labels[np.argsort(dist)]
+                f.write(str(i+1) + '\t' + ', '.join(labels) + '\n')

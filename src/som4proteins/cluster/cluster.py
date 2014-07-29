@@ -84,6 +84,45 @@ class Cluster():
         self._threshold = m_index + 2.75 * std_index
         return np.sum(index > self._threshold) + 1
     
+    def save_centroids_data(self, dataframe, bmus, cl_best, filename):
+        '''Save the centroids' data to a file.
+        
+        On every line there's the number of the cluster, followed by the
+        number of the neuron centroid and the label of the data that is
+        closest to that neuron
+        '''
+        with open(filename, mode='w') as f:
+            # TODO: make it more efficient
+            for i, best_neuron in enumerate(cl_best):
+                idx = bmus == best_neuron
+                data = dataframe.data[idx]
+                unit = np.tile(self.weight_mat[best_neuron], (len(data), 1))
+                dist = np.sqrt(np.sum(np.square(data - unit), axis=1))
+                labels = dataframe.row_labels[np.argsort(dist)]
+                f.write(str(i+1) + '\t' + str(best_neuron + 1)
+                        + '\t' + labels[0] + '\n')
+    
+    def save_cluster_neuron_data(self, cl_best, filename):
+        '''Save the clusters' data to a file.
+        
+        On every line there's the number of the cluster, followed by the
+        a list of the neurons associated with that cluster sorted by
+        distance with respect to the centroid
+        '''
+        with open(filename, mode='w') as f:
+            # TODO: make it more efficient
+            for i, best_neuron in enumerate(cl_best):
+                idx = self._cl_class == i + 1
+                data = self.weight_mat[idx]
+                unit = np.tile(self.weight_mat[best_neuron], (len(data), 1))
+                dist = np.sqrt(np.sum(np.square(data - unit), axis=1))
+                idx = np.arange(len(idx))[idx]
+                sorted_idx, _ = zip(*sorted(zip(idx, dist),
+                                            key=lambda el: el[1]))
+                f.write(str(i+1) + '\t' +
+                        ', '.join(map(lambda n: str(n+1),
+                                      sorted_idx)) + '\n')
+    
     def calc_best(self):
         '''For each cluster, find the closest not empty neuron to its centroid.
         
@@ -92,7 +131,7 @@ class Cluster():
         :returns: Array that assigns for each cluster the closest not empty neuron to its centroid.
         :rtype: array of int
         '''
-        cl_best = np.zeros(self._num_clusters)
+        cl_best = np.zeros(self._num_clusters, dtype=int)
         for c, centroid in enumerate(self._cl_centr):
             best_dist = -1
             for n_unit, (neuron, cluster) in enumerate(zip(self.weight_mat, self._cl_class)):

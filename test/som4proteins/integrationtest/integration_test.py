@@ -63,5 +63,6 @@ class IntegrationTest(unittest.TestCase):
                                             radius_fin=1, trainlen=300)
         bt = TrainAlgorithm(som_map, dataframe.data, trainingParameters)
         bt.runBatch()
-        np.testing.assert_equal(som_map.som_hits(dataframe.data), actual_val)
+        som_hits, _ = som_map.som_hits(dataframe.data)
+        np.testing.assert_equal(som_hits , actual_val)
         np.testing.assert_almost_equal(som_map.neurons_weights, actual_val_codebook, decimal=5)
