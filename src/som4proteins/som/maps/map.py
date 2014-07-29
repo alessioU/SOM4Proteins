@@ -342,14 +342,15 @@ class Map:
         ''' Save neurons' data file
         
         On every line there's the number of the neuron, followed by the
-        labels of the datas won by that neuron ordered by increasing distance
+        labels of the data won by that neuron ordered by increasing distance
         '''
         with open(file, mode='w') as f:
             # TODO: make it more efficient
             for i in range(self.num_units):
-                idx = bmus == i
+                idx = np.arange(len(dataframe.data))[bmus == i]
                 data = dataframe.data[idx]
                 unit = np.tile(self._neurons_weights[i], (len(data), 1))
                 dist = np.sqrt(np.sum(np.square(data - unit), axis=1))
-                labels = dataframe.row_labels[np.argsort(dist)]
+                sorted_idx = idx[np.argsort(dist)]
+                labels = dataframe.row_labels[sorted_idx]
                 f.write(str(i+1) + '\t' + ', '.join(labels) + '\n')

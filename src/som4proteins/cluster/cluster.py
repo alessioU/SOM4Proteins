@@ -94,11 +94,12 @@ class Cluster():
         with open(filename, mode='w') as f:
             # TODO: make it more efficient
             for i, best_neuron in enumerate(cl_best):
-                idx = bmus == best_neuron
+                idx = np.arange(len(dataframe.data))[bmus == best_neuron]
                 data = dataframe.data[idx]
                 unit = np.tile(self.weight_mat[best_neuron], (len(data), 1))
                 dist = np.sqrt(np.sum(np.square(data - unit), axis=1))
-                labels = dataframe.row_labels[np.argsort(dist)]
+                sorted_idx = idx[np.argsort(dist)]
+                labels = dataframe.row_labels[sorted_idx]
                 f.write(str(i+1) + '\t' + str(best_neuron + 1)
                         + '\t' + labels[0] + '\n')
     
